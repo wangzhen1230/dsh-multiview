@@ -1,6 +1,6 @@
 {
   "name": "dsh-multiview",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "type": "module",
   "description": "分界面 (MultiView): load several mutually isolated DSH sub-clients in one desktop window through a browser-style tab bar, and keep the main interface's model configuration effective in every sub-interface.",

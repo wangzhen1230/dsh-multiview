@@ -1,0 +1,7 @@
+# dsh-multiview bundle patch: inserts the MultiView host + client rows into the
+# active profile's layer stack. The Host half owns the child-host supervisor,
+# the per-view profiles, and the /mv reverse proxy; the Client half owns the
+# tab bar and the sub-interface layers.
+- insert:
+    - id: multiview
+      name: 'dsh-multiview'

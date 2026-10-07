@@ -1,0 +1,16 @@
+# Dependencies / build output that never belongs in the repo.
+node_modules/
+*.log
+*.tgz
+.DS_Store
+Thumbs.db
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+
+# NOTE: lib/ is intentionally NOT ignored.
+# This is a no-build plugin: lib/index.js (Host half) and lib/client.js (Client
+# half) ARE the sources, and the loader imports them directly. Ignoring lib/
+# would ship an empty plugin.

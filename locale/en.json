@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "MultiView · Sub-interfaces",
+    "description": "A browser-style tab bar that loads isolated DSH sub-clients in one window, sharing the main interface's model configuration."
+  }
+}

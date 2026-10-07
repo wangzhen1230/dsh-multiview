@@ -1,0 +1,51 @@
+{
+  "name": "dsh-multiview",
+  "version": "0.2.4",
+  "private": true,
+  "type": "module",
+  "description": "分界面 (MultiView): load several mutually isolated DSH sub-clients in one desktop window through a browser-style tab bar, and keep the main interface's model configuration effective in every sub-interface.",
+  "license": "MIT",
+  "icon": "./icon.svg",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wangzhen1230/dsh-multiview.git"
+  },
+  "homepage": "https://github.com/wangzhen1230/dsh-multiview#readme",
+  "bugs": {
+    "url": "https://github.com/wangzhen1230/dsh-multiview/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "multiview",
+    "tabs"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "files": [
+    "lib",
+    "locale",
+    "tests",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ]
+}

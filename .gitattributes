@@ -1,0 +1,11 @@
+# Normalize to LF in the repository, whatever the working-copy platform does.
+# This plugin is plain ESM/YAML/JSON and is loaded by Node on any OS; CRLF in the
+# repo would rewrite every line on a Linux/macOS checkout.
+* text=auto eol=lf
+
+# Binary assets must never be line-ending converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary

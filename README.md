@@ -137,7 +137,9 @@ github:wangzhen1230/dsh-multiview
 
 重置会**停止它、关闭它的浏览器窗口、删除整个数据目录**（装过的插件一起删除）。它只能通过设置页的「重置」按钮（页面内确认）或 `POST /mv/api/remove { "id": "<id>" }` 完成。
 
-> ⚠️ **不要手动删数据目录**。标签页 `node_modules` 里的第三方插件是**链接**到主页包副本上的，而 Windows 的 `fs.rmSync(dir, { recursive: true })` 会**顺着链接走进目标**——手动递归删除会把主页安装的插件一起删空。插件的「重置」会先解除每一个链接再删目录。
+> ⚠️ **不要手动删数据目录**。手动删只会清掉 `node_modules` 里的实体，却留下**两处悬空引用**：该标签页 `package.json` 的 `dependencies` 条目、以及它的 `dsh.profile.bundles` 列表。profile 启动时会去解析一个已不存在的依赖。插件的「重置」会**同时**清掉依赖声明、bundles 条目和目录本体。
+>
+> 补充（2026-10 实测，Node 24）：标签页 `node_modules` 里的第三方插件是**链接**到主页包副本上的。早期 Node 的 `fs.rmSync(dir, { recursive: true })` 会顺着链接走进目标、把主页安装的插件一起删空，因此旧版文档有此警告；**在 Node 24 上实测 `fs.rmSync`、`Remove-Item -Recurse`、`unlinkSync` 三种方式均只删除链接本身，不穿透目标**（源码与 `.git` 均存活）。插件的「重置」仍会先逐个解除链接再删目录，保持与旧 Node 的兼容。
 
 ## 配置
 
@@ -246,6 +248,54 @@ node tests\verify.mjs .
 ```
 
 插件是 **no-build** 的：`lib/*.js` 就是源文件本体，改完重启应用生效（Host 半边）或刷新页面（Client 半边）。提交时**不要**把 `lib/` 加进忽略。
+
+### 本地链接开发（改代码即时生效）
+
+要用「改源码 → 重启即生效」，profile 里必须记成 **链接**而不是快照。在插件页「添加插件」粘贴**源码目录的绝对路径**即可——pnpm 会自动写成 `link:` 并建 junction（无需手写 `link:`）：
+
+```
+C:\path\to\dsh-multiview
+```
+
+怎么判断当前是哪种模式：
+
+```powershell
+# junction = 链接开发；real dir = github 快照（改源码无效）
+(Get-Item "$env:USERPROFILE\.dsh\profiles\desktop\node_modules\dsh-multiview" -Force).LinkType
+```
+
+| profile 清单里的 specifier | node_modules 实体 | 改源码后 |
+| --- | --- | --- |
+| `link:C:/…/dsh-multiview` | Junction | 重启应用即生效 |
+| `github:owner/dsh-multiview` | 真实目录（codeload 快照，**冻结**） | **无效**，跑的是那份快照 |
+
+> ⚠️ **从链接切到 `github:` 后，改源码就不再生效**，而且插件给子界面复制插件时会把这个"冻结"一并传染给每个子界面。要恢复开发：在插件页卸载后，重新粘贴**绝对路径**安装即可。
+
+`github:` 安装是 codeload 下载的**打包快照**，不会跟随你的工作区；`link:` 才指向源码目录。
+
+### 不要用命令行装
+
+`dsh plugin --profile desktop add` 要求应用**完全退出**才能运行，否则 profile 的 `package.json.lock` 会报 `EPERM`。**应用运行中一律走插件页 UI。**
+
+### 发版
+
+```powershell
+# 1) 先升 version（package.json），否则同一版本号会对应多个不同内容的 commit
+# 2) 跑验证
+node tests\verify.mjs .
+# 3) 提交并推送
+git add -A
+git commit -m "fix: ..."
+git push
+```
+
+用户想锁定到确定版本（不跟 `main` HEAD 漂移），可带 commit SHA 安装：
+
+```
+github:owner/dsh-multiview#<full-commit-sha>
+```
+
+实测 lockfile 会记录成 `tar.gz/<sha>` 并正确识别版本号，内容不可变。
 
 ## 许可证
 
